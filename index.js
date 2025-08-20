@@ -8,8 +8,9 @@ app.use(bodyParser.json());
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
@@ -48,7 +49,7 @@ app.post("/addSchool", async (req, res) => {
     }
 
     const [result] = await pool.query(
-      "INSERT INTO schoolsT (name, address, latitude, longitude) VALUES (?, ?, ?, ?)",
+      "INSERT INTO schoolsTable (name, address, latitude, longitude) VALUES (?, ?, ?, ?)",
       [name, address, latitude, longitude]
     );
 
@@ -74,9 +75,9 @@ app.get("/listSchools", async (req, res) => {
         .json({ error: "Valid latitude and longitude are required" });
     }
 
-    const [schoolsT] = await pool.query("SELECT * FROM schoolsT");
+    const [schoolsTable] = await pool.query("SELECT * FROM schoolsTable");
 
-    const sortedSchools = schoolsT
+    const sortedSchools = schoolsTable
       .map((school) => ({
         ...school,
         distance: getDistance(
@@ -98,19 +99,3 @@ app.get("/listSchools", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// app.post("/addSchool",(req,res)=>{
-//   const {name,address,latitude,longtitde}=req.body;
-//   if(!req.body || !name || !address || !latitude || !longtitde){
-//    return res.status(401).json({message:"invalid credentials"})
-//   }
-
-// })
-
-// app.get("/listSchools",(req,res)=>{
-
-// })
-
-// app.listen(9001, () => {
-//   console.log("Server started at 9001");
-// });
